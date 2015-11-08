@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import sys
 import pickle
 sys.path.append("../tools/")
@@ -7,6 +6,14 @@ sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import test_classifier, dump_classifier_and_data
 from proj_helper import *
+
+import numpy as np
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.pipeline import Pipeline
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -47,21 +54,19 @@ data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
 outliers = [
     'TOTAL',
     'THE TRAVEL AGENCY IN THE PARK',
-    'LOCKHART EUGENE E',
+    # 'LOCKHART EUGENE E',
     ]
 remove_outliers(data_dict, outliers)
 
 ### Task 3: Create new feature(s)
-add_custum_features(data_dict, features_list)
-
 k = 10
 k_best_features, k_best_scores = get_k_best_features(data_dict, features_list, k)
-print k_best_features,  k_best_scores
-
+# print k_best_features,  k_best_scores
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
 features_list = poi_label + k_best_features
+add_custum_features(data_dict, features_list)
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
@@ -73,34 +78,35 @@ labels, features = targetFeatureSplit(data)
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
-from sklearn.naive_bayes import GaussianNB
-nb_clf = GaussianNB()    # Provided to give you a starting point. Try a varity of classifiers.
-
-from sklearn.tree import DecisionTreeClassifier
-dt_clf = DecisionTreeClassifier()
-
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
-svm_clf = Pipeline(steps=[
-            ('scaler', StandardScaler()),
-            ('clf', SVC(kernel = 'rbf', C = 1000, gamma = 0.0001))
-    ])
-
-### Random Forest
-from sklearn.ensemble import RandomForestClassifier
-rf_clf = Pipeline(steps=[
-            ('scaler', MinMaxScaler()),
-            ('clf', RandomForestClassifier())
-    ])
-
-from sklearn.linear_model import LogisticRegression
-lr_clf = Pipeline(steps=[
+nb_pipeline = Pipeline(steps=[('clf', GaussianNB())])
+dt_pipeline = Pipeline(steps=[('clf', DecisionTreeClassifier(random_state=42))])
+# svm_pipeline = Pipeline(steps=[
+#             ('scaler', StandardScaler()),
+#             ('clf', SVC(kernel = 'rbf'))
+#     ])
+lr_pipeline = Pipeline(steps=[
         ('scaler', StandardScaler()),
-        ('classifier', LogisticRegression(tol = 0.001, C = 10**-8, penalty = 'l2', 
-                                          random_state = 42))
+        ('clf', LogisticRegression(tol=0.001, random_state=42))
 ])
 
+pipeline_param_grid = {
+    nb_pipeline : {},
+    dt_pipeline :
+    {
+        'clf__criterion': ['gini', 'entropy'],
+        'clf__min_samples_split': range(1, 5),
+    },
+    # svm_pipeline :
+    # {
+    #     'clf__C' : [0.001, 1, 1000],
+    #     'clf__kernel' : ('rbf', 'linear'),
+    # },
+    lr_pipeline :
+    {
+        'clf__C' : 10.0 ** np.arange(-12, 15, 3),
+        'clf__penalty' : ('l1', 'l2')
+    },
+}
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script.
@@ -108,13 +114,51 @@ lr_clf = Pipeline(steps=[
 ### shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
+test_size = 0.2
+score_func = 'recall'
+for pipeline, params in pipeline_param_grid.iteritems():
+    gridcv_clf = find_best_parameters(pipeline, params, score_func, my_dataset, 
+        features_list, test_size=test_size)
+
+    for params, mean_score, scores in gridcv_clf.grid_scores_:
+        print("{:0.3f} for {}".format(mean_score, params))
+    print("Best {} score: {:0.3f}".format(score_func, gridcv_clf.best_score_))
+    print("Best parameters set:")
+    best_parameters = gridcv_clf.best_estimator_.get_params()
+    for param_name in sorted(params.keys()):
+        print("\t{}: {}".format(param_name, best_parameters[param_name]))
+
+    print('')
+
+nb_clf = GaussianNB()
+dt_clf = DecisionTreeClassifier(criterion='gini', min_samples_split=1, random_state=42)
+# svm_clf = Pipeline(steps=[
+#             ('scaler', StandardScaler()),
+#             ('clf', SVC(kernel = 'rbf', C=1000))
+#     ])
+lr_clf = Pipeline(steps=[
+        ('scaler', StandardScaler()),
+        ('clf', LogisticRegression(C=1e-6, tol=0.001, penalty='l2', random_state = 42))
+])
+
+def printValidation(clf, dataset, features):
+    precision, recall = validation(clf, dataset, features)
+    print(clf)
+    print("precision : {}, recall : {}".format(precision, recall))
+    print('')
+
+printValidation(nb_clf, my_dataset, features_list)
+printValidation(dt_clf, my_dataset, features_list)
+# validation(svm_clf, my_dataset, features_list)
+printValidation(lr_clf, my_dataset, features_list)
+
 test_classifier(nb_clf, my_dataset, features_list)
 test_classifier(dt_clf, my_dataset, features_list)
-test_classifier(lr_clf, my_dataset, features_list)
 # test_classifier(svm_clf, my_dataset, features_list)
+test_classifier(lr_clf, my_dataset, features_list)
 
 
 ### Dump your classifier, dataset, and features_list so 
 ### anyone can run/check your results.
-
-dump_classifier_and_data(nb_clf, my_dataset, features_list)
+clf = lr_clf
+dump_classifier_and_data(clf, my_dataset, features_list)
