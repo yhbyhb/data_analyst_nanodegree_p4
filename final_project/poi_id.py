@@ -61,7 +61,7 @@ remove_outliers(data_dict, outliers)
 ### Task 3: Create new feature(s)
 k = 10
 k_best_features, k_best_scores = get_k_best_features(data_dict, features_list, k)
-# print k_best_features,  k_best_scores
+print k_best_features,  k_best_scores
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
@@ -94,7 +94,7 @@ pipeline_param_grid = {
     dt_pipeline :
     {
         'clf__criterion': ['gini', 'entropy'],
-        'clf__min_samples_split': range(1, 5),
+        'clf__min_samples_split': range(2, 5),
     },
     # svm_pipeline :
     # {
@@ -115,7 +115,7 @@ pipeline_param_grid = {
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 test_size = 0.2
-score_func = 'recall'
+score_func = 'f1'
 for pipeline, params in pipeline_param_grid.iteritems():
     gridcv_clf = find_best_parameters(pipeline, params, score_func, my_dataset, 
         features_list, test_size=test_size)
@@ -131,14 +131,14 @@ for pipeline, params in pipeline_param_grid.iteritems():
     print('')
 
 nb_clf = GaussianNB()
-dt_clf = DecisionTreeClassifier(criterion='gini', min_samples_split=1, random_state=42)
+dt_clf = DecisionTreeClassifier(criterion='gini', min_samples_split=2, random_state=42)
 # svm_clf = Pipeline(steps=[
 #             ('scaler', StandardScaler()),
 #             ('clf', SVC(kernel = 'rbf', C=1000))
 #     ])
 lr_clf = Pipeline(steps=[
         ('scaler', StandardScaler()),
-        ('clf', LogisticRegression(C=1e-6, tol=0.001, penalty='l2', random_state = 42))
+        ('clf', LogisticRegression(C=1e-12, tol=0.001, penalty='l2', random_state = 42))
 ])
 
 def printValidation(clf, dataset, features):

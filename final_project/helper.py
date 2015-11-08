@@ -46,7 +46,7 @@ def add_custum_features(data_dict, features_list):
     '''
     Add custom features to data_dict.
 
-    total_income : salary + bonus
+    total_income : salary + bonus + exercised_stock_options + total_stock_value
     ratio_poi_email : (from_poi_to_this_person + from_this_person_to_poi) / (to_messages + from_messages)
     has_email : boolean type. whether record has email account.
     '''
@@ -85,14 +85,14 @@ def add_custum_features(data_dict, features_list):
     features_list += ['total_income', 'ratio_poi_email']
 
 def find_best_parameters(pipeline, parameters, score_func, dataset, 
-                         feature_list, test_size=0.3, n_iter=10):
+                         feature_list, test_size=0.2, n_iter=10):
     """
     find best parameter by using GridSearchCV with given scoring function.
 
     returns GridSearchCV object that has best parameters.
     """
 
-    data = featureFormat(dataset, feature_list, sort_keys = True)
+    data = featureFormat(dataset, feature_list)
     labels, features = targetFeatureSplit(data)
     cv = StratifiedShuffleSplit(labels, 1, test_size=test_size, random_state = 42)
     for train_idx, test_idx in cv: 
@@ -114,7 +114,7 @@ def find_best_parameters(pipeline, parameters, score_func, dataset,
 
     return clf
 
-def validation(clf, dataset, feature_list, test_size=0.3, n_iter=1000):
+def validation(clf, dataset, feature_list, test_size=0.2, n_iter=1000):
     '''
     validate given classifier with using stratifie shuffle split cross validation. 
     returns average precision and recall
