@@ -35,3 +35,34 @@ def remove_outliers(data_dict, outliers):
     for outlier in outliers:
         data_dict.pop(outlier, None)
 
+def add_custum_features(data_dict, features_list):
+    '''
+    Add custom features to data_dict.
+
+    ratio_poi_email : (from_poi_to_this_person + from_this_person_to_poi) / (to_messages + from_messages)
+    has_email : boolean type. whether record has email account.
+    '''
+    features = ['from_poi_to_this_person', 'from_this_person_to_poi',
+                'to_messages', 'from_messages']
+
+    for key in data_dict:
+        has_nan = False
+        record = data_dict[key]
+        for feature in features:
+            if record[feature] == 'NaN':
+                has_nan = True
+
+        if has_nan == False:
+            record['ratio_poi_email'] = \
+            (record['from_poi_to_this_person'] + record['from_this_person_to_poi']) / \
+            float((record['to_messages'] + record['from_messages']))
+        else:
+            record['ratio_poi_email'] = 'NaN'
+
+        if record['email_address'] =='NaN':
+            record['has_email'] = False
+        else:
+            record['has_email'] = True
+        # print record
+
+    features_list += ['ratio_poi_email', 'has_email']

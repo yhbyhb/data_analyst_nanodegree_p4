@@ -33,12 +33,12 @@ email_features = [
     'from_poi_to_this_person',
     'from_messages',
     'from_this_person_to_poi',
-    'poi',
+    # 'poi',
     'shared_receipt_with_poi',
     ]
-poi_label = 'poi'
+poi_label = ['poi']
 
-features_list = [poi_label] + financial_features + email_features
+features_list = poi_label + financial_features + email_features
 
 ### Load the dictionary containing the dataset
 data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
@@ -51,15 +51,17 @@ outliers = [
     ]
 remove_outliers(data_dict, outliers)
 
+### Task 3: Create new feature(s)
+add_custum_features(data_dict, features_list)
+
 k = 10
 k_best_features, k_best_scores = get_k_best_features(data_dict, features_list, k)
 print k_best_features,  k_best_scores
 
-### Task 3: Create new feature(s)
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
-features_list = ['poi'] + k_best_features
+features_list = poi_label + k_best_features
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
