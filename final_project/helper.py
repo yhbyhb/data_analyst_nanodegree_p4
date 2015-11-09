@@ -15,6 +15,23 @@ from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import *
 
+def count_valid_values(data_dict):
+    '''
+    counts the number of valid values for each feature
+    returns dictionary that has key : each feature, value : valid count
+    '''
+    valid_counts = {}
+    for record in data_dict:
+        person = data_dict[record]
+        for feature in person:
+            if person[feature] != 'NaN':
+                try:
+                    valid_counts[feature] += 1
+                except Exception, e:
+                    valid_counts[feature] = 1
+
+    return valid_counts
+
 def get_k_best_features(data_dict, features_list, k):
     '''
     Using SelectKBest, find k best features.
@@ -48,7 +65,6 @@ def add_custum_features(data_dict, features_list):
 
     total_income : salary + bonus + exercised_stock_options + total_stock_value
     ratio_poi_email : (from_poi_to_this_person + from_this_person_to_poi) / (to_messages + from_messages)
-    has_email : boolean type. whether record has email account.
     '''
     mail_features = ['from_poi_to_this_person', 'from_this_person_to_poi',
                      'to_messages', 'from_messages']
@@ -75,12 +91,6 @@ def add_custum_features(data_dict, features_list):
             float((record['to_messages'] + record['from_messages']))
         else:
             record['ratio_poi_email'] = 'NaN'
-
-        # if record['email_address'] =='NaN':
-        #     record['has_email'] = False
-        # else:
-        #     record['has_email'] = True
-        # print record
 
     features_list += ['total_income', 'ratio_poi_email']
 
