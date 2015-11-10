@@ -155,7 +155,7 @@ I chose logistic regression classifiers as final identifier. Since it performed 
 - [scikit-learn](http://scikit-learn.org/stable/documentation.html)
 - [course resources](https://www.udacity.com/course/intro-to-machine-learning--ud120)
 
-## Files ##
+## Contents ##
 - `final_project/`
     - `my_dataset.pkl`, `my_classifier.pkl`, `my_feature_list.pkl` : pickle files of my work
     - `final_project_dataset.pkl` : The dataset for the project
