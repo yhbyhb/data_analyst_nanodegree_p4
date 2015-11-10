@@ -114,6 +114,7 @@ pipeline_param_grid = {
 ### shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
+print("Finding best parameters...")
 test_size = 0.2
 score_func = 'recall'
 for pipeline, params in pipeline_param_grid.iteritems():
@@ -121,9 +122,9 @@ for pipeline, params in pipeline_param_grid.iteritems():
                                       features_list, test_size=test_size)
 
     print(gridcv_clf)
-    for params, mean_score, scores in gridcv_clf.grid_scores_:
-        print("{:0.3f} for {}".format(mean_score, params))
-    print("Best {} score: {:0.3f}".format(score_func, gridcv_clf.best_score_))
+    # for params, mean_score, scores in gridcv_clf.grid_scores_:
+    #     print("{:0.3f} for {}".format(mean_score, params))
+    # print("Best {} score: {:0.3f}".format(score_func, gridcv_clf.best_score_))
     print("Best parameters set:")
     best_parameters = gridcv_clf.best_estimator_.get_params()
     for param_name in sorted(params.keys()):
@@ -145,6 +146,7 @@ lr_b_clf = Pipeline(steps=[
                                  tol=0.001, random_state = 42))
 ])
 
+print("\nMy validation")
 def printValidation(clf, dataset, features, test_size):
     precision, recall = validation(clf, dataset, features, test_size = test_size)
     print(clf)
@@ -156,6 +158,7 @@ printValidation(dt_clf, my_dataset, features_list, test_size)
 printValidation(lr_clf, my_dataset, features_list, test_size)
 printValidation(lr_b_clf, my_dataset, features_list, test_size)
 
+print("\nProvided validation")
 test_classifier(nb_clf, my_dataset, features_list)
 test_classifier(dt_clf, my_dataset, features_list)
 test_classifier(lr_clf, my_dataset, features_list)
