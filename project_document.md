@@ -1,6 +1,6 @@
 Identify Fraud from Enron Email
 ========================================================
-by HanByul Yang, November 8, 2015
+by HanByul Yang, November 10, 2015
 
 ## Overview ##
 In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to widespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives.
@@ -64,7 +64,7 @@ total_payments | 8.773
 shared_receipt_with_poi | 8.589
 loan_advances | 7.184
 
-I created two new features, `total_income`, `ratio_poi_email`. `total_income` is aggregation of all financial income. It is sum of `salary`, `bonus`, `exercised_stock_options` and `total_stock_value`. `ratio_poi_email` is the ratio of sum of `from_poi_to_this_person` and `from_this_person_to_poi` to total number of emails sent or received per each record. Since there is no email features among automatically selected features, `ratio_poi_email` would be an representative of email features. Thus, total 12 features are used for final analysis.
+I created two new features, `total_income` and `ratio_poi_email`. `total_income` is aggregation of all financial income. It is sum of `salary`, `bonus`, `exercised_stock_options` and `total_stock_value`. `ratio_poi_email` is the ratio of sum of `from_poi_to_this_person` and `from_this_person_to_poi` to total number of emails sent or received of each person. Since there is no email features among automatically selected features, `ratio_poi_email` would be an representative of email features. Thus, total 12 features are used for final analysis.
 
 There are several units in features. Financial features are described in USD. unit of email features is number of emails. Due to the difference of units, I used `StandardScaler` for fianl analysis before the training the classifiers.
 
@@ -98,7 +98,7 @@ The algorithim I end up using is logistic regression. Since it performs best amo
 ### Question 4 ###
 **What does it mean to tune the parameters of an algorithm, and what can happen if you don’t do this well?  How did you tune the parameters of your particular algorithm? (Some algorithms do not have parameters that you need to tune -- if this is the case for the one you picked, identify and briefly explain how you would have done it for the model that was not your final choice or a different model that does utilize parameter tuning, e.g. a decision tree classifier).  [relevant rubric item: “tune the algorithm”]**
 
-Tuning the parameters of an algorithm is a process to find optimal parameters for best performance. Without this process, I might get a lower performance than I expected. I tuned the parameters of Decision Tree and Logistic Regression by using `GridSearchCV` with following parameters with three scoring function such as precision, recall and f1. (In case of Naive Bayes, There is no parameter to optimize.)
+Tuning the parameters of an algorithm is a process to find optimal parameters for best performance. Without this process, I might get a lower performance than I expected. I tuned the parameters of decision tree and logistic regression by using `GridSearchCV` with following parameters with three scoring function such as precision, recall and f1. (In case of Naive Bayes, There is no parameter to optimize.)
 
  - `DecisionTreeClassifier`
     - criterion : The function to measure the quality of a split.
@@ -149,7 +149,7 @@ LR (class_weight='balanced') | 0.301 | 0.776
 As I mentioned above, Navie Bayes performed unexpectedly good and logistic regression shows best scores on both evaluation metrics. Logistic regression with balanced class weight performed the highest recall score.
 
 ## Conclusion ##
-I chose logistic regression classifiers as my final identifier. Since it performed the most balanced and highest results in both validations. For optimzing recall, logistic regression classifier with balanced class weight would be the best identifier.
+I chose logistic regression classifiers as final identifier. Since it performed the most balanced and highest results in both validations. For optimzing recall, logistic regression classifier with balanced class weight would be the best identifier.
 
 ## References ##
 - [scikit-learn](http://scikit-learn.org/stable/documentation.html)

@@ -1015,7 +1015,7 @@ body .markdown-body
   }
 }
 </style><title>project_document</title></head><body><article class="markdown-body"><h1 id="identify-fraud-from-enron-email"><a name="user-content-identify-fraud-from-enron-email" href="#identify-fraud-from-enron-email" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Identify Fraud from Enron Email</h1>
-<p>by HanByul Yang, November 8, 2015</p>
+<p>by HanByul Yang, November 10, 2015</p>
 <h2 id="overview"><a name="user-content-overview" href="#overview" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Overview</h2>
 <p>In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to widespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives.</p>
 <p>In this project, by leveraging <code>scikit-learn</code>,  I built a person of interest (POI) identifier based on financial and email data made public as a result of the Enron scandal.</p>
@@ -1177,7 +1177,7 @@ body .markdown-body
 </tr>
 </tbody>
 </table>
-<p>I created two new features, <code>total_income</code>, <code>ratio_poi_email</code>. <code>total_income</code> is aggregation of all financial income. It is sum of <code>salary</code>, <code>bonus</code>, <code>exercised_stock_options</code> and <code>total_stock_value</code>. <code>ratio_poi_email</code> is the ratio of sum of <code>from_poi_to_this_person</code> and <code>from_this_person_to_poi</code> to total number of emails sent or received per each record. Since there is no email features among automatically selected features, <code>ratio_poi_email</code> would be an representative of email features. Thus, total 12 features are used for final analysis.</p>
+<p>I created two new features, <code>total_income</code> and <code>ratio_poi_email</code>. <code>total_income</code> is aggregation of all financial income. It is sum of <code>salary</code>, <code>bonus</code>, <code>exercised_stock_options</code> and <code>total_stock_value</code>. <code>ratio_poi_email</code> is the ratio of sum of <code>from_poi_to_this_person</code> and <code>from_this_person_to_poi</code> to total number of emails sent or received of each person. Since there is no email features among automatically selected features, <code>ratio_poi_email</code> would be an representative of email features. Thus, total 12 features are used for final analysis.</p>
 <p>There are several units in features. Financial features are described in USD. unit of email features is number of emails. Due to the difference of units, I used <code>StandardScaler</code> for fianl analysis before the training the classifiers.</p>
 <p>I tried <code>DecisionTreeClassifier</code> and its feature importances are below.</p>
 <table>
@@ -1245,7 +1245,7 @@ body .markdown-body
 <p>The algorithim I end up using is logistic regression. Since it performs best among the algorithms that I tried. Surprisingly, the result of naive bayes was unexpectedly good. Its precision and recall are higher than our goal <code>0.3</code>.</p>
 <h3 id="question-4"><a name="user-content-question-4" href="#question-4" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 4</h3>
 <p><strong>What does it mean to tune the parameters of an algorithm, and what can happen if you don’t do this well?  How did you tune the parameters of your particular algorithm? (Some algorithms do not have parameters that you need to tune &ndash; if this is the case for the one you picked, identify and briefly explain how you would have done it for the model that was not your final choice or a different model that does utilize parameter tuning, e.g. a decision tree classifier).  [relevant rubric item: “tune the algorithm”]</strong></p>
-<p>Tuning the parameters of an algorithm is a process to find optimal parameters for best performance. Without this process, I might get a lower performance than I expected. I tuned the parameters of Decision Tree and Logistic Regression by using <code>GridSearchCV</code> with following parameters with three scoring function such as precision, recall and f1. (In case of Naive Bayes, There is no parameter to optimize.)</p>
+<p>Tuning the parameters of an algorithm is a process to find optimal parameters for best performance. Without this process, I might get a lower performance than I expected. I tuned the parameters of decision tree and logistic regression by using <code>GridSearchCV</code> with following parameters with three scoring function such as precision, recall and f1. (In case of Naive Bayes, There is no parameter to optimize.)</p>
 <ul>
 <li><code>DecisionTreeClassifier</code><ul>
 <li>criterion : The function to measure the quality of a split.</li>
@@ -1338,7 +1338,7 @@ Validation is the process to ensure that classifiers works robustly with given p
 </table>
 <p>As I mentioned above, Navie Bayes performed unexpectedly good and logistic regression shows best scores on both evaluation metrics. Logistic regression with balanced class weight performed the highest recall score.</p>
 <h2 id="conclusion"><a name="user-content-conclusion" href="#conclusion" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Conclusion</h2>
-<p>I chose logistic regression classifiers as my final identifier. Since it performed the most balanced and highest results in both validations. For optimzing recall, logistic regression classifier with balanced class weight would be the best identifier.</p>
+<p>I chose logistic regression classifiers as final identifier. Since it performed the most balanced and highest results in both validations. For optimzing recall, logistic regression classifier with balanced class weight would be the best identifier.</p>
 <h2 id="references"><a name="user-content-references" href="#references" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>References</h2>
 <ul>
 <li><a href="http://scikit-learn.org/stable/documentation.html">scikit-learn</a></li>
