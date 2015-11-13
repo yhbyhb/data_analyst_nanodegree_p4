@@ -60,17 +60,17 @@ outliers = [
 remove_outliers(data_dict, outliers)
 
 ### Task 3: Create new feature(s)
-k = 10
+k=7
 k_best_features, k_best_scores = get_k_best_features(data_dict, features_list, k)
 # print k_best_features,  k_best_scores
-features_list = poi_label + k_best_features
-add_custum_features(data_dict, features_list)
+my_features = poi_label + k_best_features
+add_custum_features(data_dict, my_features)
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
-data = featureFormat(my_dataset, features_list, sort_keys = True)
+data = featureFormat(my_dataset, my_features, sort_keys = True)
 labels, features = targetFeatureSplit(data)
 
 ### Task 4: Try a varity of classifiers
@@ -91,11 +91,11 @@ lr_b_pipeline = Pipeline(steps=[
 ])
 pipeline_param_grid = {
     nb_pipeline : {},
-    dt_pipeline :
-    {
-        'clf__criterion': ['gini', 'entropy'],
-        'clf__min_samples_split': range(2, 5),
-    },
+    # dt_pipeline :
+    # {
+    #     'clf__criterion': ['gini', 'entropy'],
+    #     'clf__min_samples_split': range(2, 5),
+    # },
     lr_pipeline :
     {
         'clf__C' : 10.0 ** np.arange(-12, 15, 3),
@@ -119,7 +119,7 @@ test_size = 0.2
 score_func = 'recall'
 for pipeline, params in pipeline_param_grid.iteritems():
     gridcv_clf = find_best_parameters(pipeline, params, score_func, my_dataset,
-                                      features_list, test_size=test_size)
+                                      my_features, test_size=test_size)
 
     print(gridcv_clf)
     # for params, mean_score, scores in gridcv_clf.grid_scores_:
@@ -153,18 +153,18 @@ def printValidation(clf, dataset, features, test_size):
     print("precision : {}, recall : {}".format(precision, recall))
     print('')
 
-printValidation(nb_clf, my_dataset, features_list, test_size)
-printValidation(dt_clf, my_dataset, features_list, test_size)
-printValidation(lr_clf, my_dataset, features_list, test_size)
-printValidation(lr_b_clf, my_dataset, features_list, test_size)
+printValidation(nb_clf, my_dataset, my_features, test_size)
+# printValidation(dt_clf, my_dataset, my_features, test_size)
+printValidation(lr_clf, my_dataset, my_features, test_size)
+printValidation(lr_b_clf, my_dataset, my_features, test_size)
 
 print("\nProvided validation")
-test_classifier(nb_clf, my_dataset, features_list)
-test_classifier(dt_clf, my_dataset, features_list)
-test_classifier(lr_clf, my_dataset, features_list)
-test_classifier(lr_b_clf, my_dataset, features_list)
+test_classifier(nb_clf, my_dataset, my_features)
+# test_classifier(dt_clf, my_dataset, my_features)
+test_classifier(lr_clf, my_dataset, my_features)
+test_classifier(lr_b_clf, my_dataset, my_features)
 
-### Dump your classifier, dataset, and features_list so 
+### Dump your classifier, dataset, and my_features so 
 ### anyone can run/check your results.
 clf = lr_clf
-dump_classifier_and_data(clf, my_dataset, features_list)
+dump_classifier_and_data(clf, my_dataset, my_features)

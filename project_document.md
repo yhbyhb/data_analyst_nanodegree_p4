@@ -1,6 +1,6 @@
 Identify Fraud from Enron Email
 ========================================================
-by HanByul Yang, November 10, 2015
+by HanByul Yang, November 13, 2015
 
 ## Overview ##
 In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to widespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives.
@@ -49,26 +49,58 @@ total_stock_value | 126
 ### Question 2 ###
 **What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset -- explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importances of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values.  [relevant rubric items: “create new features”, “properly scale features”, “intelligently select feature”]**
 
-By using `SelectKBest` of `scikit-learn`, I selected top 10 features as following table:
+Before choosing features, I listed up feature scores by using `SelectKBest` of `scikit-learn`.
 
 Feature | Score
 ---|---:
 exercised_stock_options | 24.815
 total_stock_value | 24.183
 bonus | 20.792
-salary | 18.289
+salary | 18.290
 deferred_income | 11.458
 long_term_incentive | 9.922
 restricted_stock | 9.213
 total_payments | 8.773
 shared_receipt_with_poi | 8.589
 loan_advances | 7.184
+expenses | 6.094
+from_poi_to_this_person | 5.243
+other | 4.187
+from_this_person_to_poi | 2.383
+director_fees | 2.126
+to_messages | 1.646
+deferral_payments | 0.225
+from_messages | 0.170
+restricted_stock_deferred | 0.065
 
-I created two new features, `total_income` and `ratio_poi_email`. `total_income` is aggregation of all financial income. It is sum of `salary`, `bonus`, `exercised_stock_options` and `total_stock_value`. `ratio_poi_email` is the ratio of sum of `from_poi_to_this_person` and `from_this_person_to_poi` to total number of emails sent or received of each person. Since there is no email features among automatically selected features, `ratio_poi_email` would be an representative of email features. Thus, total 12 features are used for final analysis.
+The table of feature score has a strong drop at 5th feature `deferred_income` and a small drop at 10th feature `loan_advances`. So I tuned number of features with final identifier and evaluation metrics.
+
+# of features | precision | recall
+---|---:|---:
+3  | 0.519 | 0.234
+4  | 0.437 | 0.242
+5  | 0.502 | 0.345
+6  | 0.514 | 0.410
+7  | 0.502 | 0.423
+8  | 0.491 | 0.429
+9  | 0.434 | 0.420
+10 | 0.401 | 0.370
+11 | 0.370 | 0.381
+
+By the result, I chose top 7 features: `exercised_stock_options`, `total_stock_value`, `bonus`, `salary`, `deferred_income`, `long_term_incentive`and `restricted_stock`.
+
+I created two new features, `total_income` and `ratio_poi_email`. `total_income` is aggregation of all financial income. It is sum of `salary`, `bonus`, `exercised_stock_options` and `total_stock_value`. `ratio_poi_email` is the ratio of sum of `from_poi_to_this_person` and `from_this_person_to_poi` to total number of emails sent or received of each person. Since there is no email features among automatically selected features, `ratio_poi_email` would be a representative of email features. Thus, total 9(7+2) features are used for final analysis.
+
+By adding new 2 features. It slightly incresed recall but slightly decreased precision.
+
+# of features | precision | recall
+---|---:|---:
+7  | 0.502 | 0.423
+7 + 2 new features | 0.482 | 0.448
 
 There are several units in features. Financial features are described in USD. unit of email features is number of emails. Due to the difference of units, I used `StandardScaler` for fianl analysis before the training the classifiers.
 
-I tried `DecisionTreeClassifier` and its feature importances are below.
+I also tried `DecisionTreeClassifier` and its feature importances are below.
 
 features | feature_importance
 ---|---:
@@ -85,8 +117,7 @@ deferred_income | 0
 total_payments | 0
 loan_advances | 0
 
-`shared_receipt_with_poi` is the most important feature while `bonus`, `salary`, `deferred_income`, `total_payments` and `loan_advances` are 0 feature importance.
-
+`shared_receipt_with_poi` is the most important feature while `bonus`, `salary`, `deferred_income`, `total_payments` and `loan_advances` are 0 feature importance. By same method described above, Top 10 features and 2 new features are used for decision tree classifier.
 
 ### Question 3 ###
 **What algorithm did you end up using? What other one(s) did you try? How did model performance differ between algorithms?  [relevant rubric item: “pick an algorithm”]**
@@ -117,9 +148,9 @@ Tuning the parameters of an algorithm is a process to find optimal parameters fo
 
 ### Question 5 ###
 **What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric item: “validation strategy”]**
-Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset.
+Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method `StratifiedShuffleSplit` to achive robustness results.
 
-Because of the small size of the dataset, I used stratified shuffle split cross validation and took averages on 1000 trials of precision and recall. 20% of datas are used for testing and 80% of data for training. I also evaluated my classifier by validation method `test_classifier()` in `tester.py` .
+ I took averages on 1000 trials of precision and recall. I also evaluated my classifier by validation method `test_classifier()` in `tester.py` .
 
 ### Question 6 ###
 **Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]**
@@ -132,19 +163,19 @@ My validation (test_size=0.2, num_iter=1,000)
 
 Classifier | Precision | Recall
 ---|---:|---:
-Naive Bayes | 0.352 | 0.309
+Naive Bayes | 0.500 | 0.395
 Decision Tree | 0.278 | 0.268
-**Logistic Regression** | **0.384** | **0.379**
-LR (class_weight='balanced') | 0.305 | 0.740
+**Logistic Regression** | **0.482** | **0.448**
+LR (class_weight='balanced') | 0.289 | 0.650
 
 Provided validation (`test_classifier` in `tester.py`)
 
 Classifier | Precision | Recall
 ---|---:|---:
-Naive Bayes | 0.344 | 0.304
+Naive Bayes | 0.481 | 0.393
 Decision Tree | 0.294 | 0.291
-**Logistic Regression** | **0.356** | **0.386**
-LR (class_weight='balanced') | 0.301 | 0.776
+**Logistic Regression** | **0.463** | **0.444**
+LR (class_weight='balanced') | 0.279 | 0.641
 
 As I mentioned above, Navie Bayes performed unexpectedly good and logistic regression shows best scores on both evaluation metrics. Logistic regression with balanced class weight performed the highest recall score.
 

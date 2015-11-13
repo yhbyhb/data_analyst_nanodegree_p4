@@ -1015,7 +1015,7 @@ body .markdown-body
   }
 }
 </style><title>project_document</title></head><body><article class="markdown-body"><h1 id="identify-fraud-from-enron-email"><a name="user-content-identify-fraud-from-enron-email" href="#identify-fraud-from-enron-email" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Identify Fraud from Enron Email</h1>
-<p>by HanByul Yang, November 10, 2015</p>
+<p>by HanByul Yang, November 13, 2015</p>
 <h2 id="overview"><a name="user-content-overview" href="#overview" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Overview</h2>
 <p>In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to widespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives.</p>
 <p>In this project, by leveraging <code>scikit-learn</code>,  I built a person of interest (POI) identifier based on financial and email data made public as a result of the Enron scandal.</p>
@@ -1126,7 +1126,7 @@ body .markdown-body
 </table>
 <h3 id="question-2"><a name="user-content-question-2" href="#question-2" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 2</h3>
 <p><strong>What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset &ndash; explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importances of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values.  [relevant rubric items: “create new features”, “properly scale features”, “intelligently select feature”]</strong></p>
-<p>By using <code>SelectKBest</code> of <code>scikit-learn</code>, I selected top 10 features as following table:</p>
+<p>Before choosing features, I listed up feature scores by using <code>SelectKBest</code> of <code>scikit-learn</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1149,7 +1149,7 @@ body .markdown-body
 </tr>
 <tr>
 <td>salary</td>
-<td align="right">18.289</td>
+<td align="right">18.290</td>
 </tr>
 <tr>
 <td>deferred_income</td>
@@ -1175,11 +1175,127 @@ body .markdown-body
 <td>loan_advances</td>
 <td align="right">7.184</td>
 </tr>
+<tr>
+<td>expenses</td>
+<td align="right">6.094</td>
+</tr>
+<tr>
+<td>from_poi_to_this_person</td>
+<td align="right">5.243</td>
+</tr>
+<tr>
+<td>other</td>
+<td align="right">4.187</td>
+</tr>
+<tr>
+<td>from_this_person_to_poi</td>
+<td align="right">2.383</td>
+</tr>
+<tr>
+<td>director_fees</td>
+<td align="right">2.126</td>
+</tr>
+<tr>
+<td>to_messages</td>
+<td align="right">1.646</td>
+</tr>
+<tr>
+<td>deferral_payments</td>
+<td align="right">0.225</td>
+</tr>
+<tr>
+<td>from_messages</td>
+<td align="right">0.170</td>
+</tr>
+<tr>
+<td>restricted_stock_deferred</td>
+<td align="right">0.065</td>
+</tr>
 </tbody>
 </table>
-<p>I created two new features, <code>total_income</code> and <code>ratio_poi_email</code>. <code>total_income</code> is aggregation of all financial income. It is sum of <code>salary</code>, <code>bonus</code>, <code>exercised_stock_options</code> and <code>total_stock_value</code>. <code>ratio_poi_email</code> is the ratio of sum of <code>from_poi_to_this_person</code> and <code>from_this_person_to_poi</code> to total number of emails sent or received of each person. Since there is no email features among automatically selected features, <code>ratio_poi_email</code> would be an representative of email features. Thus, total 12 features are used for final analysis.</p>
+<p>The table of feature score has a strong drop at 5th feature <code>deferred_income</code> and a small drop at 10th feature <code>loan_advances</code>. So I tuned number of features with final identifier and evaluation metrics.</p>
+<table>
+<thead>
+<tr>
+<th># of features</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td align="right">0.519</td>
+<td align="right">0.234</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">0.437</td>
+<td align="right">0.242</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">0.502</td>
+<td align="right">0.345</td>
+</tr>
+<tr>
+<td>6</td>
+<td align="right">0.514</td>
+<td align="right">0.410</td>
+</tr>
+<tr>
+<td>7</td>
+<td align="right">0.502</td>
+<td align="right">0.423</td>
+</tr>
+<tr>
+<td>8</td>
+<td align="right">0.491</td>
+<td align="right">0.429</td>
+</tr>
+<tr>
+<td>9</td>
+<td align="right">0.434</td>
+<td align="right">0.420</td>
+</tr>
+<tr>
+<td>10</td>
+<td align="right">0.401</td>
+<td align="right">0.370</td>
+</tr>
+<tr>
+<td>11</td>
+<td align="right">0.370</td>
+<td align="right">0.381</td>
+</tr>
+</tbody>
+</table>
+<p>By the result, I chose top 7 features: <code>exercised_stock_options</code>, <code>total_stock_value</code>, <code>bonus</code>, <code>salary</code>, <code>deferred_income</code>, <code>long_term_incentive</code>and <code>restricted_stock</code>.</p>
+<p>I created two new features, <code>total_income</code> and <code>ratio_poi_email</code>. <code>total_income</code> is aggregation of all financial income. It is sum of <code>salary</code>, <code>bonus</code>, <code>exercised_stock_options</code> and <code>total_stock_value</code>. <code>ratio_poi_email</code> is the ratio of sum of <code>from_poi_to_this_person</code> and <code>from_this_person_to_poi</code> to total number of emails sent or received of each person. Since there is no email features among automatically selected features, <code>ratio_poi_email</code> would be a representative of email features. Thus, total 9(7+2) features are used for final analysis.</p>
+<p>By adding new 2 features. It slightly incresed recall but slightly decreased precision.</p>
+<table>
+<thead>
+<tr>
+<th># of features</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td align="right">0.502</td>
+<td align="right">0.423</td>
+</tr>
+<tr>
+<td>7 + 2 new features</td>
+<td align="right">0.482</td>
+<td align="right">0.448</td>
+</tr>
+</tbody>
+</table>
 <p>There are several units in features. Financial features are described in USD. unit of email features is number of emails. Due to the difference of units, I used <code>StandardScaler</code> for fianl analysis before the training the classifiers.</p>
-<p>I tried <code>DecisionTreeClassifier</code> and its feature importances are below.</p>
+<p>I also tried <code>DecisionTreeClassifier</code> and its feature importances are below.</p>
 <table>
 <thead>
 <tr>
@@ -1238,7 +1354,7 @@ body .markdown-body
 </tr>
 </tbody>
 </table>
-<p><code>shared_receipt_with_poi</code> is the most important feature while <code>bonus</code>, <code>salary</code>, <code>deferred_income</code>, <code>total_payments</code> and <code>loan_advances</code> are 0 feature importance.</p>
+<p><code>shared_receipt_with_poi</code> is the most important feature while <code>bonus</code>, <code>salary</code>, <code>deferred_income</code>, <code>total_payments</code> and <code>loan_advances</code> are 0 feature importance. By same method described above, Top 10 features and 2 new features are used for decision tree classifier.</p>
 <h3 id="question-3"><a name="user-content-question-3" href="#question-3" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 3</h3>
 <p><strong>What algorithm did you end up using? What other one(s) did you try? How did model performance differ between algorithms?  [relevant rubric item: “pick an algorithm”]</strong></p>
 <p>I tried 3 algorhithms such as naive bayes, decision tree and <a href="https://en.wikipedia.org/wiki/Logistic_regression">logistic regression</a> which is not covered in class. Logistic regression is generally used to model dichotomous outcome variables. For example, suppose that we are interested in the factors that influence whether a political candidate wins an election. The outcome (response) variable is binary (0/1);  win or lose. It is similar to our goal that classifying poi and non-poi.</p>
@@ -1266,8 +1382,8 @@ body .markdown-body
 </ul>
 <h3 id="question-5"><a name="user-content-question-5" href="#question-5" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 5</h3>
 <p><strong>What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric item: “validation strategy”]</strong><br />
-Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset.</p>
-<p>Because of the small size of the dataset, I used stratified shuffle split cross validation and took averages on 1000 trials of precision and recall. 20% of datas are used for testing and 80% of data for training. I also evaluated my classifier by validation method <code>test_classifier()</code> in <code>tester.py</code> .</p>
+Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method <code>StratifiedShuffleSplit</code> to achive robustness results.</p>
+<p>I took averages on 1000 trials of precision and recall. I also evaluated my classifier by validation method <code>test_classifier()</code> in <code>tester.py</code> .</p>
 <h3 id="question-6"><a name="user-content-question-6" href="#question-6" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 6</h3>
 <p><strong>Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]</strong></p>
 <p>Precision and recall are used for evaluation. Precision is ratio of number of true positive to all positive prediction. High precision means low chance of false alarm. Recall shows the ratio of number of true positive to actual POIs. To identify POI as many as possible, increasing recall is needed.</p>
@@ -1284,8 +1400,8 @@ Validation is the process to ensure that classifiers works robustly with given p
 <tbody>
 <tr>
 <td>Naive Bayes</td>
-<td align="right">0.352</td>
-<td align="right">0.309</td>
+<td align="right">0.500</td>
+<td align="right">0.395</td>
 </tr>
 <tr>
 <td>Decision Tree</td>
@@ -1294,13 +1410,13 @@ Validation is the process to ensure that classifiers works robustly with given p
 </tr>
 <tr>
 <td><strong>Logistic Regression</strong></td>
-<td align="right"><strong>0.384</strong></td>
-<td align="right"><strong>0.379</strong></td>
+<td align="right"><strong>0.482</strong></td>
+<td align="right"><strong>0.448</strong></td>
 </tr>
 <tr>
 <td>LR (class_weight=&rsquo;balanced&rsquo;)</td>
-<td align="right">0.305</td>
-<td align="right">0.740</td>
+<td align="right">0.289</td>
+<td align="right">0.650</td>
 </tr>
 </tbody>
 </table>
@@ -1316,8 +1432,8 @@ Validation is the process to ensure that classifiers works robustly with given p
 <tbody>
 <tr>
 <td>Naive Bayes</td>
-<td align="right">0.344</td>
-<td align="right">0.304</td>
+<td align="right">0.481</td>
+<td align="right">0.393</td>
 </tr>
 <tr>
 <td>Decision Tree</td>
@@ -1326,13 +1442,13 @@ Validation is the process to ensure that classifiers works robustly with given p
 </tr>
 <tr>
 <td><strong>Logistic Regression</strong></td>
-<td align="right"><strong>0.356</strong></td>
-<td align="right"><strong>0.386</strong></td>
+<td align="right"><strong>0.463</strong></td>
+<td align="right"><strong>0.444</strong></td>
 </tr>
 <tr>
 <td>LR (class_weight=&rsquo;balanced&rsquo;)</td>
-<td align="right">0.301</td>
-<td align="right">0.776</td>
+<td align="right">0.279</td>
+<td align="right">0.641</td>
 </tr>
 </tbody>
 </table>
@@ -1344,7 +1460,7 @@ Validation is the process to ensure that classifiers works robustly with given p
 <li><a href="http://scikit-learn.org/stable/documentation.html">scikit-learn</a></li>
 <li><a href="https://www.udacity.com/course/intro-to-machine-learning--ud120">course resources</a></li>
 </ul>
-<h2 id="files"><a name="user-content-files" href="#files" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Files</h2>
+<h2 id="contents"><a name="user-content-contents" href="#contents" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Contents</h2>
 <ul>
 <li><code>final_project/</code><ul>
 <li><code>my_dataset.pkl</code>, <code>my_classifier.pkl</code>, <code>my_feature_list.pkl</code> : pickle files of my work</li>
