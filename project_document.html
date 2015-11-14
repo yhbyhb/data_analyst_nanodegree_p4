@@ -1217,7 +1217,7 @@ body .markdown-body
 <table>
 <thead>
 <tr>
-<th># of features</th>
+<th>number of features</th>
 <th align="right">precision</th>
 <th align="right">recall</th>
 </tr>
@@ -1276,7 +1276,7 @@ body .markdown-body
 <table>
 <thead>
 <tr>
-<th># of features</th>
+<th>number of features</th>
 <th align="right">precision</th>
 <th align="right">recall</th>
 </tr>
@@ -1382,7 +1382,7 @@ body .markdown-body
 </ul>
 <h3 id="question-5"><a name="user-content-question-5" href="#question-5" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 5</h3>
 <p><strong>What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric item: “validation strategy”]</strong><br />
-Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method <code>StratifiedShuffleSplit</code> to achive robustness results.</p>
+Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method <code>StratifiedShuffleSplit</code> to achive robust results.</p>
 <p>I took averages on 1000 trials of precision and recall. I also evaluated my classifier by validation method <code>test_classifier()</code> in <code>tester.py</code> .</p>
 <h3 id="question-6"><a name="user-content-question-6" href="#question-6" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Question 6</h3>
 <p><strong>Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]</strong></p>

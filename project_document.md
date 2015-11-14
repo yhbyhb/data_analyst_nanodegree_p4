@@ -75,7 +75,7 @@ restricted_stock_deferred | 0.065
 
 The table of feature score has a strong drop at 5th feature `deferred_income` and a small drop at 10th feature `loan_advances`. So I tuned number of features with final identifier and evaluation metrics.
 
-# of features | precision | recall
+number of features | precision | recall
 ---|---:|---:
 3  | 0.519 | 0.234
 4  | 0.437 | 0.242
@@ -93,7 +93,7 @@ I created two new features, `total_income` and `ratio_poi_email`. `total_income`
 
 By adding new 2 features. It slightly incresed recall but slightly decreased precision.
 
-# of features | precision | recall
+number of features | precision | recall
 ---|---:|---:
 7  | 0.502 | 0.423
 7 + 2 new features | 0.482 | 0.448
@@ -148,7 +148,7 @@ Tuning the parameters of an algorithm is a process to find optimal parameters fo
 
 ### Question 5 ###
 **What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric item: “validation strategy”]**
-Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method `StratifiedShuffleSplit` to achive robustness results.
+Validation is the process to ensure that classifiers works robustly with given parameters. The classic mistake is over-fitting. If over-fitted, the machine learning model works well with training dataset and performs poorly on test dataset. To avoid overfitting, I held out 20 % of dataset for test set and put 80 % into training set. Since dataset is small and labels are skewed towards non-POI (18 POI and 125 non-POI after removing outliers),  I used stratified method `StratifiedShuffleSplit` to achive robust results.
 
  I took averages on 1000 trials of precision and recall. I also evaluated my classifier by validation method `test_classifier()` in `tester.py` .
 
